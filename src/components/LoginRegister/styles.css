@@ -1,0 +1,25 @@
+.login-register-paper {
+  max-width: 500px;
+  margin: 32px auto 0 auto;
+}
+
+.tab-panel-box {
+  padding: 24px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-button {
+  margin-top: 16px !important;
+}

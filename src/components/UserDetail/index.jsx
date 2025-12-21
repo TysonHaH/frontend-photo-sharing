@@ -13,19 +13,21 @@ function UserDetail() {
 
   // Gọi backend: GET /user/:id
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchModel(`/user/${userId}`)
-      .then((data) => {
+    const fetchUserData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchModel(`/user/${userId}`);
         setUser(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching user:", err);
         setError(err.message || "Error fetching user");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchUserData();
   }, [userId]);
 
   if (loading) {

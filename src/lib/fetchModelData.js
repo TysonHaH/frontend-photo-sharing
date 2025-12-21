@@ -2,11 +2,27 @@
 
 const BASE_URL = 'http://localhost:8081';
 
-function fetchModel(url) {
-  return fetch(BASE_URL + url)
+function request(url, method, data = null) {
+  const headers = {
+    'Content-Type': 'application/json',
+    // Thêm Authorization token nếu cần:
+    // 'Authorization': 'Bearer ' + token
+  };
+
+  const config = {
+    method: method,
+    headers: headers,
+    credentials: 'include', // Quan trọng: Cho phép gửi cookie session đi kèm
+  };
+
+  // Nếu có body và method không phải là GET/HEAD, thêm body vào config
+  if (data && method !== 'GET' && method !== 'HEAD') {
+    config.body = JSON.stringify(data);
+  }
+
+  return fetch(BASE_URL + url, config)
     .then((response) => {
       if (!response.ok) {
-        // có thể đọc message từ backend
         return response.json().then((err) => {
           const msg = err && err.message ? err.message : 'Fetch error';
           throw new Error(msg);
@@ -15,9 +31,31 @@ function fetchModel(url) {
       return response.json();
     })
     .catch((err) => {
-      console.error('fetchModel error:', err);
+      console.error(`Fetch ${method} error:`, err);
       throw err;
     });
+}
+
+// --- Các hàm Export để sử dụng bên ngoài ---
+
+// 1. GET (Giữ lại logic cũ của bạn nhưng gọi hàm request)
+export function fetchModel(url) {
+  return request(url, 'GET');
+}
+
+// 2. POST (Tạo mới)
+export function postModel(url, data) {
+  return request(url, 'POST', data);
+}
+
+// 3. PUT (Cập nhật)
+export function putModel(url, data) {
+  return request(url, 'PUT', data);
+}
+
+// 4. DELETE (Xóa)
+export function deleteModel(url) {
+  return request(url, 'DELETE');
 }
 
 export default fetchModel;

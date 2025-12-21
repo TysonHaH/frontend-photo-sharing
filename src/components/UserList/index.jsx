@@ -19,15 +19,17 @@ function UserList() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Gọi backend: GET /user/list
-    fetchModel("/user/list")
-      .then((data) => {
+    const fetchUsers = async () => {
+      try {
+        const data = await fetchModel("/user/list");
         setUsers(data || []);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching user list:", err);
         setError(err.message || "Error fetching user list");
-      });
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   return (
@@ -43,12 +45,8 @@ function UserList() {
       )}
       <List component="nav">
         {users.map((item) => {
-          const id = item._id || item.id || item.user_id || item.userId;
-          const name =
-            `${item.first_name || ""} ${item.last_name || ""}`.trim() ||
-            item.first_name ||
-            item.last_name ||
-            `User ${id}`;
+          const id = item._id;
+          const name = item.last_name; 
 
           return (
             <React.Fragment key={id}>

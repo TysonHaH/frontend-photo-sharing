@@ -7,11 +7,13 @@ import {
   Typography,
   Divider,
   Link,
+  TextField,
+  Button,
 } from "@mui/material";
 import { useParams, Link as RouterLink } from "react-router-dom";
 
 import "./styles.css";
-import fetchModel from "../../lib/fetchModelData";   
+import fetchModel, { postModel } from "../../lib/fetchModelData";
 
 function formatDate(dateLike) {
   if (!dateLike) return "";
@@ -41,28 +43,50 @@ function UserPhotos() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [newComments, setNewComments] = useState({}); // Lưu nội dung comment cho từng ảnh: { [photoId]: "content" }
+  const [refresh, setRefresh] = useState(false); // Trigger để load lại dữ liệu sau khi comment
 
   // Gọi backend: /user/:id và /photosOfUser/:id
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    // Promise.all để fetch song song user + photos
-    Promise.all([
-      fetchModel(`/user/${userId}`),
-      fetchModel(`/photosOfUser/${userId}`),
-    ])
-      .then(([userData, photosData]) => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [userData, photosData] = await Promise.all([
+          fetchModel(`/user/${userId}`),
+          fetchModel(`/photosOfUser/${userId}`),
+        ]);
         setUser(userData);
         setPhotos(photosData || []);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching user/photos:", err);
         setError(err.message || "Error fetching user/photos");
+      } finally {
         setLoading(false);
-      });
-  }, [userId]);
+      }
+    };
+
+    fetchData();
+  }, [userId, refresh]);
+
+  const handleCommentChange = (photoId, event) => {
+    const { value } = event.target;
+    setNewComments((prev) => ({ ...prev, [photoId]: value }));
+  };
+
+  const handleCommentSubmit = async (photoId) => {
+    const commentText = newComments[photoId];
+    if (!commentText || !commentText.trim()) return;
+
+    try {
+      await postModel(`/commentsOfPhoto/${photoId}`, { comment: commentText });
+      setNewComments((prev) => ({ ...prev, [photoId]: "" })); // Xóa ô nhập liệu
+      setRefresh((prev) => !prev); // Load lại ảnh để hiển thị comment mới
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      alert("Failed to add comment: " + (err.message || "Unknown error"));
+    }
+  };
 
   if (loading) {
     return <Typography variant="h6">Loading photos...</Typography>;
@@ -117,11 +141,7 @@ function UserPhotos() {
                   {comments.map((c) => {
                     const author = c.user || null; // backend trả về user rút gọn
                     const authorId = author ? author._id : null;
-                    const authorName = author
-                      ? `${author.first_name || ""} ${
-                          author.last_name || ""
-                        }`.trim()
-                      : "Unknown";
+                    const authorName = author.last_name
                     const commentDate = formatDate(c.date_time);
                     return (
                       <div key={c._id} style={{ marginTop: 8 }}>
@@ -129,19 +149,35 @@ function UserPhotos() {
                           {commentDate}
                         </Typography>
                         <Typography variant="body2">
-                          {authorId ? (
-                            <Link component={RouterLink} to={`/users/${authorId}`}>
-                              {authorName}
-                            </Link>
-                          ) : (
-                            <>{authorName}</>
-                          )}
+                          <Link component={RouterLink} to={`/users/${authorId}`}>
+                            {authorName}
+                          </Link>
                           {": "}
                           {c.comment}
                         </Typography>
                       </div>
                     );
                   })}
+
+                  {/* Form thêm comment */}
+                  <div style={{ display: "flex", alignItems: "center", marginTop: 16, gap: 8 }}>
+                    <TextField
+                      label="Add a comment"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      value={newComments[photoId] || ""}
+                      onChange={(e) => handleCommentChange(photoId, e)}
+                    />
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleCommentSubmit(photoId)}
+                      disabled={!newComments[photoId] || !newComments[photoId].trim()}
+                    >
+                      Add
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </Grid>

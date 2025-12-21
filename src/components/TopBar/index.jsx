@@ -1,48 +1,54 @@
 import React from "react";
-import { AppBar, Toolbar, Typography } from "@mui/material";
-import { useMatch } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Button, Link } from "@mui/material";
 
 import "./styles.css";
-import models from "../../modelData/models";
+import { postModel } from "../../lib/fetchModelData";
 
 /**
  * TopBar: app header that shows app name on the left and context on the right
  * (e.g. user name or "Photos of {user}") depending on the route.
  */
-function TopBar() {
-  // Try to match the detail and photos routes
-  const userMatch = useMatch("/users/:userId");
-  const photosMatch = useMatch("/photos/:userId");
-
-  let rightText = null;
-  try {
-    if (userMatch && userMatch.params && userMatch.params.userId) {
-      const u = models.userModel(userMatch.params.userId);
-      if (u) {
-        rightText = `${u.first_name || ""} ${u.last_name || ""}`.trim();
-      }
-    } else if (photosMatch && photosMatch.params && photosMatch.params.userId) {
-      const u = models.userModel(photosMatch.params.userId);
-      if (u) {
-        rightText = `Photos of ${u.first_name || ""} ${u.last_name || ""}`.trim();
-      }
+function TopBar({ loggedInUser, setLoggedInUser }) {
+  const handleLogout = async () => {
+    try {
+      await postModel("/admin/logout");
+      setLoggedInUser(null);
+    } catch (err) {
+      console.error("Logout failed", err);
     }
-  } catch (e) {
-    // defensive: if models or matching fails, leave rightText null
-    rightText = null;
-  }
+  };
 
   return (
     <AppBar className="topbar-appBar" position="absolute">
       <Toolbar>
         <Typography variant="h5" color="inherit">
-          Ha hoang Quan Photo Sharing Site
+          <Link component={RouterLink} to="/" color="inherit" underline="none">
+            Ha hoang Quan Photo Sharing Site
+          </Link>
         </Typography>
-
-        {rightText && (
-          <Typography variant="subtitle1" color="inherit" sx={{ marginLeft: "auto" }}>
-            {rightText}
-          </Typography>
+        
+        <Typography variant="subtitle1" color="inherit" sx={{ marginLeft: "auto", marginRight: 2 }}>
+          {loggedInUser ? (
+            <>
+              Hi{", "}
+              <Link component={RouterLink} to={`/users/${loggedInUser._id}`} color="inherit">
+                {loggedInUser.first_name || loggedInUser.login_name}
+              </Link>
+            </>
+          ) : (
+            "Please Login or Sign up"
+          )}
+        </Typography>
+        {loggedInUser && (
+          <Button color="inherit" component={RouterLink} to="/" sx={{ marginRight: 2 }}>
+            Post Photo
+          </Button>
+        )}
+        {loggedInUser && (
+          <Button color="inherit" onClick={handleLogout}>
+            Logout
+          </Button>
         )}
       </Toolbar>
     </AppBar>
