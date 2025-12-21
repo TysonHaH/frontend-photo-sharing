@@ -56,8 +56,8 @@ function UserPhotos() {
           fetchModel(`/user/${userId}`),
           fetchModel(`/photosOfUser/${userId}`),
         ]);
-        setUser(userData);
-        setPhotos(photosData || []);
+        setUser(userData.data);
+        setPhotos(photosData.data || []);
       } catch (err) {
         console.error("Error fetching user/photos:", err);
         setError(err.message || "Error fetching user/photos");

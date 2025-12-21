@@ -33,16 +33,16 @@ function TopBar({ loggedInUser, setLoggedInUser }) {
             <>
               Hi{", "}
               <Link component={RouterLink} to={`/users/${loggedInUser._id}`} color="inherit">
-                {loggedInUser.first_name || loggedInUser.login_name}
+                {loggedInUser.last_name}
               </Link>
             </>
           ) : (
             "Please Login or Sign up"
-          )}
+          )}  
         </Typography>
         {loggedInUser && (
           <Button color="inherit" component={RouterLink} to="/" sx={{ marginRight: 2 }}>
-            Post Photo
+            Post A Photo
           </Button>
         )}
         {loggedInUser && (

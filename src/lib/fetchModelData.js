@@ -1,12 +1,8 @@
-// lib/fetchModelData.js
-
 const BASE_URL = 'http://localhost:8081';
 
 function request(url, method, data = null) {
   const headers = {
     'Content-Type': 'application/json',
-    // Thêm Authorization token nếu cần:
-    // 'Authorization': 'Bearer ' + token
   };
 
   const config = {
@@ -21,14 +17,29 @@ function request(url, method, data = null) {
   }
 
   return fetch(BASE_URL + url, config)
-    .then((response) => {
-      if (!response.ok) {
-        return response.json().then((err) => {
-          const msg = err && err.message ? err.message : 'Fetch error';
-          throw new Error(msg);
-        });
+    .then(async (response) => {
+      // 1. Cố gắng lấy data JSON, nếu backend không trả JSON (ví dụ lỗi 500 html) thì gán là null hoặc object rỗng
+      let responseData = null;
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        responseData = null;
       }
-      return response.json();
+
+      // 2. Xử lý trường hợp lỗi (Status không phải 2xx)
+      if (!response.ok) {
+        // Tạo object lỗi để ném ra catch
+        const errorObj = new Error(responseData?.message || 'Fetch error');
+        errorObj.status = response.status; // <--- Gán thêm status vào lỗi để catch bắt được
+        errorObj.data = responseData;      // Gán thêm data lỗi nếu cần
+        throw errorObj;
+      }
+
+      // 3. TRẢ VỀ CẢ DATA VÀ STATUS (Thành công)
+      return {
+        data: responseData,   // Dữ liệu từ backend
+        status: response.status // Mã HTTP (200, 201...)
+      };
     })
     .catch((err) => {
       console.error(`Fetch ${method} error:`, err);

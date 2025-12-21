@@ -17,8 +17,8 @@ function UserDetail() {
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchModel(`/user/${userId}`);
-        setUser(data);
+        const user = await fetchModel(`/user/${userId}`);
+        setUser(user.data);
       } catch (err) {
         console.error("Error fetching user:", err);
         setError(err.message || "Error fetching user");

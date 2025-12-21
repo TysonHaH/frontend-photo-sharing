@@ -21,8 +21,8 @@ function UserList() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await fetchModel("/user/list");
-        setUsers(data || []);
+        const users = await fetchModel("/user/list");
+        setUsers(users.data || []);
       } catch (err) {
         console.error("Error fetching user list:", err);
         setError(err.message || "Error fetching user list");

@@ -34,7 +34,16 @@ function LoginRegister({ setLoggedInUser }) {
   const [loginName, setLoginName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
+  const [registerError,setRegisterError] = useState("");
+  const [registerData, setRegisterData] = useState({
+    last_name: "",
+    location: "",
+    description: "",
+    occupation: "",
+    username: "",
+    password: "",
+  }); 
+  const [confirmPassword, setConfirmPassword] = useState("");
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
     setError(null);
@@ -49,15 +58,44 @@ function LoginRegister({ setLoggedInUser }) {
         login_name: loginName,
         password: password,
       });
-      setLoggedInUser(userData);
+      setLoggedInUser(userData.data);
       // Chuyển hướng về trang chi tiết của người dùng vừa đăng nhập
-      navigate(`/users/${userData._id}`);
+      navigate(`/users/${userData.data._id}`);
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.message || "Login failed. Please check your credentials.");
     }
   };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setRegisterError(null);
+    
+     if (registerData.password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+    try{
+      const response = await postModel("/register", registerData);
+      if(response.status === 200){
+        alert("Registration successful! Please log in.");
+        setTabValue(0);
+        setRegisterData({
+            username: "",
+            password: "",
+            last_name: "",
+            location: "",
+            description: "",
+            occupation: ""
+        });
+        setConfirmPassword("");
+        return;
+      }
+    } catch (err) {
+      console.error("Registration failed:", err);
+      setRegisterError(err.message || "Registration failed. Please try again.");
+    }
+  };
   return (
     <Paper elevation={3} className="login-register-paper">
       <Tabs value={tabValue} onChange={handleChange} variant="fullWidth">
@@ -102,18 +140,69 @@ function LoginRegister({ setLoggedInUser }) {
         <Box
           component="form"
           className="register-form"
+          onSubmit={handleRegister}
           noValidate
           autoComplete="off"
         >
           <Typography variant="h5" component="h1" gutterBottom align="center">
             Register
           </Typography>
-          <TextField label="Username" variant="outlined" fullWidth required />
-          <TextField label="Password" type="password" variant="outlined" fullWidth required/>
-          <TextField label="Confirm Password" type="password" variant="outlined" fullWidth required/>
-          <TextField label="First Name" variant="outlined" fullWidth required/>
-          <TextField label="Last Name" variant="outlined" fullWidth required/>
-          <Button variant="contained" color="primary" className="form-button">
+          {registerError && <Typography color="error">{registerError}</Typography>}
+          <TextField 
+            label="Username" 
+            variant="outlined" 
+            fullWidth 
+            required 
+            value={registerData.username}
+            onChange =  {(e) => setRegisterData({...registerData, username: e.target.value})}
+          />
+          <TextField 
+            label="Password" 
+            type="password" 
+            variant="outlined" 
+            fullWidth 
+            required 
+            value={registerData.password}
+            onChange = {(e) => setRegisterData({...registerData, password: e.target.value})}
+          />
+          <TextField 
+            label="Confirm Password" 
+            type="password" 
+            variant="outlined" 
+            fullWidth 
+            required
+            value={confirmPassword}
+            onChange = {(e) => setConfirmPassword(e.target.value)}
+            error={confirmPassword !== "" && registerData.password !== confirmPassword}
+            helper={
+              confirmPassword !== "" && registerData.password !== confirmPassword
+                ? "Passwords do not match"
+                : ""
+            }
+          />
+          <TextField 
+            label="Name" 
+            variant="outlined" 
+            fullWidth 
+            required 
+            value={registerData.last_name}
+            onChange = {(e) => setRegisterData({...registerData,last_name: e.target.value})}
+          />
+          <TextField 
+            label="Location" 
+            variant="outlined" 
+            fullWidth 
+            value={registerData.location}
+            onChange = {(e) => setRegisterData({...registerData,location: e.target.value})}
+          />
+          <TextField 
+            label="Occupation" 
+            variant="outlined" 
+            fullWidth 
+            value={registerData.occupation}
+            onChange = {(e) => setRegisterData({...registerData,occupation: e.target.value})}
+          />
+          <Button type="subnmit" variant="contained" color="primary" className="form-button">
             Register
           </Button>
         </Box>

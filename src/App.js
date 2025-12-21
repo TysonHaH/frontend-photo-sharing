@@ -22,7 +22,7 @@ const App = (props) => {
     const checkLoginStatus = async () => {
       try {
         const user = await fetchModel("/admin/loggedin-user");
-        setLoggedInUser(user);
+        setLoggedInUser(user.data);
       } catch (err) {
         setLoggedInUser(null);
       } finally {
