@@ -1,18 +1,18 @@
-const BASE_URL = 'http://localhost:8081';
+const BASE_URL = "https://2khqwf-8081.csb.app";
 
 function request(url, method, data = null) {
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
 
   const config = {
     method: method,
     headers: headers,
-    credentials: 'include', // Quan trọng: Cho phép gửi cookie session đi kèm
+    credentials: "include", // Quan trọng: Cho phép gửi cookie session đi kèm
   };
 
   // Nếu có body và method không phải là GET/HEAD, thêm body vào config
-  if (data && method !== 'GET' && method !== 'HEAD') {
+  if (data && method !== "GET" && method !== "HEAD") {
     config.body = JSON.stringify(data);
   }
 
@@ -29,16 +29,16 @@ function request(url, method, data = null) {
       // 2. Xử lý trường hợp lỗi (Status không phải 2xx)
       if (!response.ok) {
         // Tạo object lỗi để ném ra catch
-        const errorObj = new Error(responseData?.message || 'Fetch error');
+        const errorObj = new Error(responseData?.message || "Fetch error");
         errorObj.status = response.status; // <--- Gán thêm status vào lỗi để catch bắt được
-        errorObj.data = responseData;      // Gán thêm data lỗi nếu cần
+        errorObj.data = responseData; // Gán thêm data lỗi nếu cần
         throw errorObj;
       }
 
       // 3. TRẢ VỀ CẢ DATA VÀ STATUS (Thành công)
       return {
-        data: responseData,   // Dữ liệu từ backend
-        status: response.status // Mã HTTP (200, 201...)
+        data: responseData, // Dữ liệu từ backend
+        status: response.status, // Mã HTTP (200, 201...)
       };
     })
     .catch((err) => {
@@ -51,22 +51,22 @@ function request(url, method, data = null) {
 
 // 1. GET (Giữ lại logic cũ của bạn nhưng gọi hàm request)
 export function fetchModel(url) {
-  return request(url, 'GET');
+  return request(url, "GET");
 }
 
 // 2. POST (Tạo mới)
 export function postModel(url, data) {
-  return request(url, 'POST', data);
+  return request(url, "POST", data);
 }
 
 // 3. PUT (Cập nhật)
 export function putModel(url, data) {
-  return request(url, 'PUT', data);
+  return request(url, "PUT", data);
 }
 
 // 4. DELETE (Xóa)
 export function deleteModel(url) {
-  return request(url, 'DELETE');
+  return request(url, "DELETE");
 }
 
 export default fetchModel;
