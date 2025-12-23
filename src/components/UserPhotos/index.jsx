@@ -24,13 +24,7 @@ function formatDate(dateLike) {
 
 function getImageSrc(fileName) {
   if (!fileName) return null;
-  try {
-    // Require the image from the bundled src/images directory
-    // Webpack will handle bundling these assets.
-    return require(`../../images/${fileName}`);
-  } catch (e) {
-    return null;
-  }
+  return `http://localhost:8081/images/${fileName}`;
 }
 
 /**
@@ -43,10 +37,9 @@ function UserPhotos() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newComments, setNewComments] = useState({}); // Lưu nội dung comment cho từng ảnh: { [photoId]: "content" }
-  const [refresh, setRefresh] = useState(false); // Trigger để load lại dữ liệu sau khi comment
+  const [newComments, setNewComments] = useState({});
+  const [refresh, setRefresh] = useState(false);
 
-  // Gọi backend: /user/:id và /photosOfUser/:id
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -80,8 +73,8 @@ function UserPhotos() {
 
     try {
       await postModel(`/commentsOfPhoto/${photoId}`, { comment: commentText });
-      setNewComments((prev) => ({ ...prev, [photoId]: "" })); // Xóa ô nhập liệu
-      setRefresh((prev) => !prev); // Load lại ảnh để hiển thị comment mới
+      setNewComments((prev) => ({ ...prev, [photoId]: "" }));
+      setRefresh((prev) => !prev);
     } catch (err) {
       console.error("Error posting comment:", err);
       alert("Failed to add comment: " + (err.message || "Unknown error"));

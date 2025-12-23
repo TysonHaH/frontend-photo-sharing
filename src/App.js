@@ -10,11 +10,11 @@ import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import LoginRegister from "./components/LoginRegister";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserEdit from "./components/UserEdit";
+import PassChange from "./components/PassChange";
 import fetchModel from './lib/fetchModelData';
 
 const App = (props) => {
-  // Giả lập trạng thái chưa đăng nhập.
-  // Trong ứng dụng thực tế, bạn sẽ lấy thông tin này từ context hoặc local storage.
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
 
@@ -65,7 +65,9 @@ const App = (props) => {
                     <Grid item sm={9}>
                       <Paper className="main-grid-item">
                         <Routes>
-                          <Route path="/users/:userId" element={<UserDetail />} />
+                          <Route path="/users/:userId" element={<UserDetail loggedInUser={loggedInUser}/>}  />
+                          <Route path="/edit/:userId" element={<UserEdit  loggedInUser={loggedInUser}/>} />
+                          <Route path="/edit/pass/:userId" element={<PassChange  loggedInUser={loggedInUser}/>} />
                           <Route path="/photos/:userId" element={<UserPhotos />} />
                           <Route path="/users" element={<UserList />} />
                         </Routes>

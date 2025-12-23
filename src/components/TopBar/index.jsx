@@ -41,7 +41,7 @@ function TopBar({ loggedInUser, setLoggedInUser }) {
           )}  
         </Typography>
         {loggedInUser && (
-          <Button color="inherit" component={RouterLink} to="/" sx={{ marginRight: 2 }}>
+          <Button color="inherit" component={RouterLink} to="/add-photo" sx={{ marginRight: 2 }}>
             Post A Photo
           </Button>
         )}

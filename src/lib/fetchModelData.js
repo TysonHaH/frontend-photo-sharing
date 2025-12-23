@@ -60,8 +60,8 @@ export function postModel(url, data) {
 }
 
 // 3. PUT (Cập nhật)
-export function putModel(url, data) {
-  return request(url, 'PUT', data);
+export function patchModel(url, data) {
+  return request(url, 'PATCH', data);
 }
 
 // 4. DELETE (Xóa)

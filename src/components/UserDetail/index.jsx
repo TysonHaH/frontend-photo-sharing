@@ -4,21 +4,26 @@ import { useParams, Link as RouterLink } from "react-router-dom";
 import "./styles.css";
 import fetchModel from "../../lib/fetchModelData";
 
-function UserDetail() {
+function UserDetail({ loggedInUser }) {
   const { userId } = useParams();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [count, setCount] = useState(0);
   // Gọi backend: GET /user/:id
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const user = await fetchModel(`/user/${userId}`);
+        const [user, count] = await Promise.all([ 
+          fetchModel(`/user/${userId}`),
+          fetchModel(`/photosOfUser/count/${userId}`),
+        ]);
+
         setUser(user.data);
+        setCount(count.data.count);
       } catch (err) {
         console.error("Error fetching user:", err);
         setError(err.message || "Error fetching user");
@@ -26,7 +31,6 @@ function UserDetail() {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [userId]);
 
@@ -53,14 +57,26 @@ function UserDetail() {
     );
   }
 
-  const name = `${user.first_name || ""} ${user.last_name || ""}`.trim();
-
+  const name = user.last_name.trim();
+  
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           {name}
+          {loggedInUser._id === userId && (
+            <Button 
+              component={RouterLink}
+              variant="outlined" 
+              size="small" 
+              sx={{ ml: 2 }} 
+              to={`/edit/${user._id}`}
+            >
+              Edit
+            </Button>
+          )}
         </Typography>
+
         {user.location && (
           <Typography color="textSecondary">Location: {user.location}</Typography>
         )}
@@ -68,9 +84,11 @@ function UserDetail() {
           <Typography>Occupation: {user.occupation}</Typography>
         )}
         {user.description && (
-          <Typography sx={{ mt: 2 }}>{user.description}</Typography>
+          <Typography sx={{ mt: 2 }}>Description: {user.description}</Typography>
         )}
-
+        {(count !== null && count !== undefined) && (
+          <Typography sx={{ mt: 2 }}>The number of photos: {count}</Typography>
+        )}
         <Button
           component={RouterLink}
           to={`/photos/${user._id}`}

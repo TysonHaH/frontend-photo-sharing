@@ -71,12 +71,12 @@ function LoginRegister({ setLoggedInUser }) {
     e.preventDefault();
     setRegisterError(null);
     
-     if (registerData.password !== confirmPassword) {
+    if (registerData.password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
     try{
-      const response = await postModel("/register", registerData);
+      const response = await postModel("/admin/register", registerData);
       if(response.status === 200){
         alert("Registration successful! Please log in.");
         setTabValue(0);
