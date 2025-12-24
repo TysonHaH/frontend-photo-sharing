@@ -8,6 +8,7 @@ import {
   Divider,
   Link,
   TextField,
+  Box,
   Button,
 } from "@mui/material";
 import { useParams, Link as RouterLink } from "react-router-dom";
@@ -67,7 +68,8 @@ function UserPhotos() {
     setNewComments((prev) => ({ ...prev, [photoId]: value }));
   };
 
-  const handleCommentSubmit = async (photoId) => {
+  const handleCommentSubmit = async (e,photoId) => {
+    e.preventDefault();
     const commentText = newComments[photoId];
     if (!commentText || !commentText.trim()) return;
 
@@ -132,7 +134,7 @@ function UserPhotos() {
                     <Typography color="textSecondary">No comments</Typography>
                   )}
                   {comments.map((c) => {
-                    const author = c.user || null; // backend trả về user rút gọn
+                    const author = c.user || null;
                     const authorId = author ? author._id : null;
                     const authorName = author.last_name
                     const commentDate = formatDate(c.date_time);
@@ -152,8 +154,16 @@ function UserPhotos() {
                     );
                   })}
 
-                  {/* Form thêm comment */}
-                  <div style={{ display: "flex", alignItems: "center", marginTop: 16, gap: 8 }}>
+                  <Box 
+                    component="form" 
+                    onSubmit={(e) => handleCommentSubmit(e, photoId)} 
+                    sx={{ 
+                      display: "flex",       
+                      alignItems: "center",  
+                      gap: 1,                
+                      marginTop: 2           
+                    }}
+                  >
                     <TextField
                       label="Add a comment"
                       variant="outlined"
@@ -165,12 +175,12 @@ function UserPhotos() {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => handleCommentSubmit(photoId)}
+                      type="submit"
                       disabled={!newComments[photoId] || !newComments[photoId].trim()}
                     >
                       Add
                     </Button>
-                  </div>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
