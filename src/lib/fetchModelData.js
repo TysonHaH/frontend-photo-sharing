@@ -8,17 +8,15 @@ function request(url, method, data = null) {
   const config = {
     method: method,
     headers: headers,
-    credentials: 'include', // Quan trọng: Cho phép gửi cookie session đi kèm
+    credentials: 'include'
   };
 
-  // Nếu có body và method không phải là GET/HEAD, thêm body vào config
   if (data && method !== 'GET' && method !== 'HEAD') {
     config.body = JSON.stringify(data);
   }
 
   return fetch(BASE_URL + url, config)
     .then(async (response) => {
-      // 1. Cố gắng lấy data JSON, nếu backend không trả JSON (ví dụ lỗi 500 html) thì gán là null hoặc object rỗng
       let responseData = null;
       try {
         responseData = await response.json();
@@ -26,16 +24,12 @@ function request(url, method, data = null) {
         responseData = null;
       }
 
-      // 2. Xử lý trường hợp lỗi (Status không phải 2xx)
       if (!response.ok) {
-        // Tạo object lỗi để ném ra catch
         const errorObj = new Error(responseData?.message || 'Fetch error');
-        errorObj.status = response.status; // <--- Gán thêm status vào lỗi để catch bắt được
-        errorObj.data = responseData;      // Gán thêm data lỗi nếu cần
+        errorObj.status = response.status;
+        errorObj.data = responseData; 
         throw errorObj;
       }
-
-      // 3. TRẢ VỀ CẢ DATA VÀ STATUS (Thành công)
       return {
         data: responseData,   // Dữ liệu từ backend
         status: response.status // Mã HTTP (200, 201...)

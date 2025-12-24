@@ -59,7 +59,6 @@ function LoginRegister({ setLoggedInUser }) {
         password: password,
       });
       setLoggedInUser(userData.data);
-      // Chuyển hướng về trang chi tiết của người dùng vừa đăng nhập
       navigate(`/users/${userData.data._id}`);
     } catch (err) {
       console.error("Login failed:", err);

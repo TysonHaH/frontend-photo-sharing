@@ -96,7 +96,7 @@ function UserPhotos() {
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        {user.first_name} {user.last_name}'s Photos
+        {user.last_name}'s Photos
       </Typography>
 
       {photos.length === 0 && (

@@ -1,7 +1,6 @@
 import './App.css';
-
 import React, { useState, useEffect } from "react";
-import { Grid, Paper } from "@mui/material";
+import { Grid, Paper, Box } from "@mui/material"; // Thêm Box
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 import TopBar from "./components/TopBar";
@@ -10,8 +9,7 @@ import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import LoginRegister from "./components/LoginRegister";
 import ProtectedRoute from "./components/ProtectedRoute";
-import UserEdit from "./components/UserEdit";
-import PassChange from "./components/PassChange";
+import PostPhoto from "./components/PostPhoto";
 import fetchModel from './lib/fetchModelData';
 
 const App = (props) => {
@@ -37,39 +35,51 @@ const App = (props) => {
   }
 
   return (
-      <Router>
-        <div>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TopBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
-            </Grid>
-            <div className="main-topbar-buffer" />
+    <Router>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        
+        <Box sx={{ flexShrink: 0 }}> 
+           <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TopBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
+              </Grid>
+           </Grid>
+        </Box>
+
+        <Box sx={{ flexGrow: 1, overflow: 'hidden', marginTop: '64px' }}> 
+          <Grid container spacing={2} sx={{ height: '100%' }}>
+            
             <Routes>
               <Route path="/login" element={
-                loggedInUser ? <Navigate to={`/users/${loggedInUser._id}`} /> : (
-                  <Grid item xs={12}>
+                 loggedInUser ? <Navigate to={`/users/${loggedInUser._id}`} /> : (
+                  <Grid item xs={12} sx={{ p: 2 }}>
                     <LoginRegister setLoggedInUser={setLoggedInUser} />
                   </Grid>
                 )
               } />
-              
-              {/* Các route cần bảo vệ */}
+
               <Route path="*" element={
                 <ProtectedRoute user={loggedInUser}>
                   <>
-                    <Grid item sm={3}>
-                      <Paper className="main-grid-item">
+                    <Grid item sm={3} sx={{ height: '100%' }}>
+                      <Paper className="main-grid-item" sx={{ 
+                          height: '100%',       // Cao full cột
+                          overflowY: 'auto',    // Chỉ cuộn trong khung này
+                      }}>
                         <UserList />
                       </Paper>
                     </Grid>
-                    <Grid item sm={9}>
-                      <Paper className="main-grid-item">
+
+                    <Grid item sm={9} sx={{ height: '100%' }}>
+                      <Paper className="main-grid-item" sx={{ 
+                          height: '100%',      
+                          overflowY: 'auto', 
+                      }}>
                         <Routes>
                           <Route path="/users/:userId" element={<UserDetail loggedInUser={loggedInUser}/>}  />
-                          <Route path="/edit/:userId" element={<UserEdit  loggedInUser={loggedInUser}/>} />
-                          <Route path="/edit/pass/:userId" element={<PassChange  loggedInUser={loggedInUser}/>} />
                           <Route path="/photos/:userId" element={<UserPhotos />} />
                           <Route path="/users" element={<UserList />} />
+                          <Route path="/add-photo/:userId" element={<PostPhoto loggedInUser={loggedInUser}/>} />
                         </Routes>
                       </Paper>
                     </Grid>
@@ -77,9 +87,11 @@ const App = (props) => {
                 </ProtectedRoute>
               } />
             </Routes>
+
           </Grid>
-        </div>
-      </Router>
+        </Box>
+      </Box>
+    </Router>
   );
 };
 

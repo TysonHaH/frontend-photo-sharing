@@ -64,17 +64,6 @@ function UserDetail({ loggedInUser }) {
       <CardContent>
         <Typography variant="h5" gutterBottom>
           {name}
-          {loggedInUser._id === userId && (
-            <Button 
-              component={RouterLink}
-              variant="outlined" 
-              size="small" 
-              sx={{ ml: 2 }} 
-              to={`/edit/${user._id}`}
-            >
-              Edit
-            </Button>
-          )}
         </Typography>
 
         {user.location && (
